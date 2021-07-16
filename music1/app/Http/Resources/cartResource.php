@@ -3,8 +3,12 @@
 namespace App\Http\Resources;
 
 use App\Models\Cart;
+use App\Models\Product;
 use App\Models\ProductsList;
+use Brick\Math\BigInteger;
+use Brick\Math\BigNumber;
 use Illuminate\Http\Resources\Json\JsonResource;
+use phpDocumentor\Reflection\Types\Integer;
 
 class cartResource extends JsonResource
 {
@@ -17,16 +21,23 @@ class cartResource extends JsonResource
     public function toArray($request)
     {
         $products = ProductsList::where('cart_id', $this->id)->get();
-        $list = PeoductsListResource::collection($products);
-        if ($products == null)
+        $sum = (float) 0;
+        foreach ($products as $product)
         {
-            error_log(1);
+            $product_instance = Product::find($product->product_id);
+            $sum+=(float)$product->count*$product_instance->price;
+        }
+        $list = PeoductsListResource::collection($products);
+        if ($sum < 2147483647)
+        {
+            $sum = (int)$sum;
         }
         return [
             'id' => $this->id,
             'ip' => $this->ip,
             'e-mail' => $this->email,
             'phone' => $this->phone,
+            'final_price' => $sum,
             'products' => $list
         ];
 
