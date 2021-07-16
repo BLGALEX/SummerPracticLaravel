@@ -25,3 +25,7 @@ Route::resources([
     'cart' => cartController::class
 ]);
 
+Route::post('cart/add',[CartController::class,'add']);
+Route::post('cart/update',[CartController::class,'update']);
+Route::post('cart/delete',[CartController::class,'destroy']);
+

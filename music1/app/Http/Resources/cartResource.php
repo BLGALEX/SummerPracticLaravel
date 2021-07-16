@@ -27,7 +27,7 @@ class cartResource extends JsonResource
             $product_instance = Product::find($product->product_id);
             $sum+=(float)$product->count*$product_instance->price;
         }
-        $list = PeoductsListResource::collection($products);
+        $list = PoductsListResource::collection($products);
         if ($sum < 2147483647)
         {
             $sum = (int)$sum;
