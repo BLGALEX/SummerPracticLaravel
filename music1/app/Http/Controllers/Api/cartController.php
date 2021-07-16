@@ -13,7 +13,7 @@ class cartController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return cartResource
      */
     public function index(Request $request)
     {

@@ -10,4 +10,9 @@ class Category extends Model
     public $timestamps = false;
     protected $guarded = [];
     use HasFactory;
+
+    public function products(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
 }

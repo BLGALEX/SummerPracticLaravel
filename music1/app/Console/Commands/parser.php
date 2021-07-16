@@ -49,7 +49,6 @@ class parser extends Command
         {
             $link = "https://www.muztorg.ru/product/".$val;
             $html = file_get_contents($link);
-
             preg_match('#<div\s*class="product-head">\s*\n\s*<a\s*href="/category/(.*?)"#', $html, $category);
             preg_match('#<h1\s*class="product-title"\s*itemprop="name"\s*>(.*?)</h1>#', $html, $name);
             preg_match('#<meta\s*itemprop="price"\s*content="(.*?)">#', $html, $price);
@@ -57,9 +56,14 @@ class parser extends Command
 
             assert($category !== false && $name !== false && $price !== false && $img !== false);
 
-            $categories[] = $category[1];
-
-            $new_product = Product::create([
+            if (Category::where('name', $category[1])->first() == null)
+            {
+                $category_instance = Category::create([
+                    'name' => $category[1]
+                ]);
+            }
+            $category_instance = Category::where('name', $category[1])->first();
+            $category_instance->products()->create([
                 'name' => $name[1],
                 'category_name' => $category[1],
                 'picture' => $img[1],
@@ -67,12 +71,11 @@ class parser extends Command
             ]);
 
             $i++;
+            if ($i == 5)
+            {
+                break;
+            }
             error_log($i);
-        }
-        foreach(array_unique($categories) as $val){
-            $new_category = Category::create([
-                'name' => $val
-            ]);
         }
         return 0;
     }
@@ -84,7 +87,7 @@ class parser extends Command
      */
     public function handle()
     {
-        $this->parse_link('https://www.muztorg.ru/search/%D0%B3%D0%B8%D1%82%D0%B0%D1%80%D0%B0?all-stock=1&per-page=96');
+        $this->parse_link('https://www.muztorg.ru/search/%D0%B3%D0%B8%D1%82%D0%B0%D1%80%D0%B0');
         return 0;
     }
 }
