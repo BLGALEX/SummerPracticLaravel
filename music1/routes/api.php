@@ -28,4 +28,4 @@ Route::resources([
 Route::post('cart/add',[CartController::class,'add']);
 Route::post('cart/update',[CartController::class,'update']);
 Route::post('cart/delete',[CartController::class,'destroy']);
-
+Route::post('cart/submit', [CartController::class, 'submit']);

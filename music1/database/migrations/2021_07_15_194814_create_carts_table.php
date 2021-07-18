@@ -18,6 +18,7 @@ class CreateCartsTable extends Migration
             $table->string('ip');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
+            $table->boolean('submited')->default(false);
         });
     }
 

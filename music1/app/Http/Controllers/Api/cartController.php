@@ -24,13 +24,14 @@ class cartController extends Controller
     public function index(Request $request)
     {
         $ip = $request->ip();
-        if (Cart::where('ip', $ip)->first() === null)
+        if (Cart::where('ip', $ip)->where('submited', false)->first() === null)
         {
             $new_cart = Cart::create([
-                'ip' => $ip
+                'ip' => $ip,
+                'submited' => false
             ]);
         }
-        return new cartResource(Cart::where('ip', $ip)->first());
+        return new cartResource(Cart::where('ip', $ip)->where('submited', false)->first());
     }
 
     /**
@@ -47,12 +48,12 @@ class cartController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return ProductsListResource|PoductsListResource|\Illuminate\Http\JsonResponse
+     * @return ProductsListResource|PoductsListResource|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function add(Request $request)
     {
         $this->index($request);
-        $user_id = Cart::where('ip', $request->ip())->first()->id;
+        $user_id = Cart::where('ip', $request->ip())->where('submited', false)->first()->id;
         if (Product::where('id', $request->id)->first() != null)
         {
             $product_in_list = ProductsList::where('product_id', $request->id)->where('cart_id', $user_id)->first();
@@ -70,9 +71,10 @@ class cartController extends Controller
                     'count' => 1
             ]);
             }
+            $product_in_list = ProductsList::where('product_id', $request->id)->where('cart_id', $user_id)->first();
             return new PoductsListResource($product_in_list);
         }
-        return response()->json(['error' => 'no such product'], 404);
+        return response(['error' => 'no such product'], Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -91,20 +93,20 @@ class cartController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return PoductsListResource|\Illuminate\Http\JsonResponse
+     * @return PoductsListResource|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function update(Request $request)
     {
         if (!is_int($request->count) || !is_int($request->id))
         {
-            return response()->json(['error' => 'wrong keys or values'], 400);
+            return response(['error' => 'wrong keys or values'], Response::HTTP_BAD_REQUEST);
         }
         if ($request->count < 1)
         {
-            return response()->json(['error' => 'products amount must be >1'], 400);
+            return response(['error' => 'products amount must be >1'], Response::HTTP_BAD_REQUEST);
         }
         $this->index($request);
-        $user_id = Cart::where('ip', $request->ip())->first()->id;
+        $user_id = Cart::where('ip', $request->ip())->where('submited', false)->first()->id;
         if (Product::where('id', $request->id)->first() != null)
         {
             $product_in_list = ProductsList::where('product_id', $request->id)->where('cart_id', $user_id)->first();
@@ -122,9 +124,10 @@ class cartController extends Controller
                     'count' => $request->count
                 ]);
             }
+            $product_in_list = ProductsList::where('product_id', $request->id)->where('cart_id', $user_id)->first();
             return new PoductsListResource($product_in_list);
         }
-        return response()->json(['error' => 'no such product'], 400);
+        return response(['error' => 'no such product'], Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -136,7 +139,7 @@ class cartController extends Controller
     public function destroy(Request $request)
     {
         $this->index($request);
-        $user_id = Cart::where('ip', $request->ip())->first()->id;
+        $user_id = Cart::where('ip', $request->ip())->where('submited', false)->first()->id;
         if (!is_int($request->id))
         {
             return response()->json(['error' => 'wrong key or value'], 400);
@@ -148,12 +151,50 @@ class cartController extends Controller
             if ($product_in_list != null)
             {
                 $product_in_list->delete();
-                return response(null, Response::HTTP_NO_CONTENT);
+                return response(null, Response::HTTP_OK);
             }
             else {
-                return response(null, Response::HTTP_BAD_REQUEST);
+                return response(['error' => 'no such product in cart'], Response::HTTP_BAD_REQUEST);
             }
         }
-        return response()->json(['error' => 'no such product'], 400);
+        return response(['error' => 'no such product'], Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return PoductsListResource|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+     */
+    public function submit(Request $request)
+    {
+        $user = Cart::where('ip', $request->ip())->where('submited', false)->first();
+        if ($user === null)
+        {
+            $this->index($request);
+            return response(['error' => 'cart is empty'], Response::HTTP_BAD_REQUEST);
+        }
+        if (ProductsList::where('cart_id', $user->id)->first() === null)
+        {
+            return response(['error' => 'cart is empty'], Response::HTTP_BAD_REQUEST);
+        }
+        if (!is_string($request->email) || !is_string($request->phone))
+        {
+            return response(['error' => 'wrong key or value'], Response::HTTP_BAD_REQUEST);
+        }
+        if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+            return response(['error' => 'invalid email'], Response::HTTP_BAD_REQUEST);
+        }
+        if (!preg_match('#^[0-9]+\z#', $request->phone))
+        {
+            return response(['error' => 'invalid phone_number'], Response::HTTP_BAD_REQUEST);
+        }
+        $user->update([
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'submited' => true
+        ]);
+        return response(new cartResource($user), Response::HTTP_OK);
     }
 }
