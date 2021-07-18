@@ -42,3 +42,50 @@
 Метод для удаления товара из корзины.
 7) POST /cart/submit
 Метод для оформления заказа. Должен принимать контактные данные пользователя и сохранять их вместе с товарами из корзины в базе данных.
+
+
+## Загрузка и запуск проекта на Windows 10.
+
+Для клонирвания проекта с репозитория рекомендуется использовать phpStorm.
+
+#### 1) Cкачать и установить следующее:
+
+PHP 8 – https://www.php.net/downloads.php  (не забываем добавить переменную в path)
+PhpStorm – https://www.jetbrains.com/phpstorm/download/
+Composer – https://getcomposer.org/download/
+MAMP – https://www.mamp.info/en/downloads/
+MySQL – https://dev.mysql.com/downloads/installer/
+
+#### 2) Запуск MAMP и PHPStorm:
+
+Запускаем PHPStorm и клонируем проект с этого репозитория. Заходим в терминал в проекте, переходим в папку "music1" и пишем команду:
+> composer update
+Должна появиться папка vendor. 
+Теперь зпускаем MAMP и жмём "start servers" (галочкка около mysql server должна стать зелёной), затем жмём "open webpage" (http://localhost/MAMP/) и нас должно перекинуть на страницу, на которой можно увидеть табличку с данными следующего типа:
+![image](https://user-images.githubusercontent.com/58458024/126075884-71c96a54-32fb-4fbd-9d25-27c7439e4626.png)
+
+Host	localhost
+Port	3307
+User	root
+Password	root
+
+Находим в папке проекта файл .env и убеждаемся что следующие переменные соответствуют таблице, например:
+![image](https://user-images.githubusercontent.com/58458024/126075896-3a6c79c1-9764-48e8-9637-b1881d47911e.png)
+
+DB_HOST=127.0.0.1
+DB_PORT=3307
+DB_USERNAME=root
+DB_PASSWORD=root
+
+После этого переходим по ссылке "phpMyAdmin" (http://localhost/MAMP/index.php?page=phpmyadmin&language=English), которая есть на странице MAMP. 
+
+#### 3) Создание базы данных, миграция и парсинг:
+
+Теперь на странице phpmyAdmin жмем на создание новой базы данных и указываем её имя. Теперь это имя нужно будет прописать в файле .env, в переменную:
+DB_DATABASE=music_store (имя, которое указал я при создании)
+Возвращаемся в терминал и пишем команды:
+> php artisan migrate
+> php artisan command:parser
+Для выполнения второй команды может понадобиться некоторое время, в процессе парсинга каждого товара со страницы магазина будет выведен лог в консоль.
+
+#### 4) 
