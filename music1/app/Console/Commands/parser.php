@@ -104,7 +104,7 @@ class parser extends Command
 
     public function handle()
     {
-        $this->parse_link('https://www.muztorg.ru/search/%D0%B3%D0%B8%D1%82%D0%B0%D1%80%D0%B0');
+        $this->parse_link('https://www.muztorg.ru/search/%D0%B3%D0%B8%D1%82%D0%B0%D1%80%D0%B0?in-stock=1&pre-order=1&per-page=48');
         return 0;
     }
 }

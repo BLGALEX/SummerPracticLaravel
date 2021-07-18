@@ -21,7 +21,7 @@
 Реализовать скрипт (https://laravel.com/docs/artisan#generating-commands) для парсинга информации о товарах и категориях с существующего сайта.
 Парсить данные можно с помощью регулярных выражений. 
 Используемый сайт – www.muztorg.ru
-Страница для парсинга – https://www.muztorg.ru/search/%D0%B3%D0%B8%D1%82%D0%B0%D1%80%D0%B0
+Страница для парсинга – https://www.muztorg.ru/search/%D0%B3%D0%B8%D1%82%D0%B0%D1%80%D0%B0?in-stock=1&pre-order=1&per-page=48
 
 #### 3. Разработка API (2 балла)
 Разработать REST JSON API (https://habr.com/ru/post/447322) для каталога.
