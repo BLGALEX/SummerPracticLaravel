@@ -88,7 +88,7 @@ class parser extends Command
 
             $i++;
             //Ограничиваемся парсингом 5 товаров
-            if ($i == 5)
+            if ($i == 40)
             {
                 break;
             }
